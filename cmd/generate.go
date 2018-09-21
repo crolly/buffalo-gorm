@@ -20,7 +20,7 @@ var generateOptions = struct {
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
 	Use:   "gorm",
-	Short: "generates a new gorm",
+	Short: "A collection of gorm generators",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		r := genny.WetRunner(context.Background())
 

@@ -7,7 +7,7 @@ import (
 // gormCmd represents the gorm command
 var gormCmd = &cobra.Command{
 	Use:   "gorm",
-	Short: "description about this plugin",
+	Short: "generator plugin using gorm instead of pop",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		return nil
 	},
