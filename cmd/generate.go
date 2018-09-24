@@ -19,16 +19,19 @@ var generateOptions = struct {
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
-	Use:   "gorm",
+	Use:   "gorm name",
 	Short: "A collection of gorm generators",
 	RunE: func(cmd *cobra.Command, args []string) error {
+		opts := generateOptions
+		opts.Args = args
+
 		r := genny.WetRunner(context.Background())
 
 		if generateOptions.dryRun {
 			r = genny.DryRunner(context.Background())
 		}
 
-		g, err := gorm.New(generateOptions.Options)
+		g, err := gorm.New(opts.Options)
 		if err != nil {
 			return errors.WithStack(err)
 		}
@@ -45,7 +48,7 @@ var generateCmd = &cobra.Command{
 }
 
 func init() {
+	// generateCmd.Flags().StringVarP(&generateOptions.TestName, "name", "n", "", "specify the name of the gorm model/resource")
 	generateCmd.Flags().BoolVarP(&generateOptions.dryRun, "dry-run", "d", false, "run the generator without creating files or running commands")
-	gormCmd.AddCommand(generateCmd)
 	rootCmd.AddCommand(generateCmd)
 }

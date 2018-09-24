@@ -1,0 +1,1 @@
+drop_table("admin_tests")

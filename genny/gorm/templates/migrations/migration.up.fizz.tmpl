@@ -1,0 +1,5 @@
+create_table("{{.NamedAttrs.Name.Tableize}}") {
+  t.Column("id", "uuid", {"primary": true})
+  {{ range $a := .NamedAttrs.Attrs }}t.Column("{{$a.Name.Underscore}}", "{{$a.CommonType}}")
+  {{ end }}t.Column("deleted_at", "timestamp", {"null": true})
+}

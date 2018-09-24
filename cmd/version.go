@@ -18,5 +18,5 @@ var versionCmd = &cobra.Command{
 }
 
 func init() {
-	gormCmd.AddCommand(versionCmd)
+	generateCmd.AddCommand(versionCmd)
 }

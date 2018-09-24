@@ -1,0 +1,6 @@
+- id: "test.created.success"
+  translation: "Test was successfully created."
+- id: "test.updated.success"
+  translation: "Test was successfully updated."
+- id: "test.destroyed.success"
+  translation: "Test was successfully destroyed."
