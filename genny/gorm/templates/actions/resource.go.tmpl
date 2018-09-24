@@ -14,18 +14,18 @@ import (
 // edit this file.
 
 // Following naming logic is implemented in Buffalo:
-// Model: Singular ({{.Model.Model}})
-// DB Table: Plural ({{.Model.Table}})
+// Model: Singular ({{.ModelName.Model}})
+// DB Table: Plural ({{.ModelName.Table}})
 // Resource: Plural ({{.Name.Resource}})
 // Path: Plural (/{{.Name.URL}})
 // View Template Folder: Plural (/templates/{{.FilesPath}}/)
 
-// {{.Name.Resource}}Resource is the resource for the {{.Model.Model}} model
+// {{.Name.Resource}}Resource is the resource for the {{.ModelName.Model}} model
 type {{.Name.Resource}}Resource struct{
   buffalo.Resource
 }
 
-// List gets all {{.Model.ModelPlural}}. This function is mapped to the path
+// List gets all {{.ModelName.ModelPlural}}. This function is mapped to the path
 // GET /{{.Name.URL}}
 func (v {{.Name.Resource}}Resource) List(c buffalo.Context) error {
   // Get the DB connection from the context
@@ -34,24 +34,24 @@ func (v {{.Name.Resource}}Resource) List(c buffalo.Context) error {
     return errors.WithStack(errors.New("no transaction found"))
   }
 
-  {{.Model.VarCasePlural}} := &models.{{.Model.ModelPlural}}{}
+  {{.ModelName.VarCasePlural}} := &models.{{.ModelName.ModelPlural}}{}
 
   // Paginate results. Params "page" and "per_page" control pagination.
   // Default values are "page=1" and "per_page=20".
   q := tx.PaginateFromParams(c.Params())
 
-  // Retrieve all {{.Model.ModelPlural}} from the DB
-  if err := q.All({{.Model.VarCasePlural}}); err != nil {
+  // Retrieve all {{.ModelName.ModelPlural}} from the DB
+  if err := q.All({{.ModelName.VarCasePlural}}); err != nil {
     return errors.WithStack(err)
   }
 
   // Add the paginator to the context so it can be used in the template.
   c.Set("pagination", q.Paginator)
 
-  return c.Render(200, r.Auto(c, {{.Model.VarCasePlural}}))
+  return c.Render(200, r.Auto(c, {{.ModelName.VarCasePlural}}))
 }
 
-// Show gets the data for one {{.Model.Model}}. This function is mapped to
+// Show gets the data for one {{.ModelName.Model}}. This function is mapped to
 // the path GET /{{.Name.URL}}/{{"{"}}{{.Name.ParamID}}}
 func (v {{.Name.Resource}}Resource) Show(c buffalo.Context) error {
   // Get the DB connection from the context
@@ -60,31 +60,31 @@ func (v {{.Name.Resource}}Resource) Show(c buffalo.Context) error {
     return errors.WithStack(errors.New("no transaction found"))
   }
 
-  // Allocate an empty {{.Model.Model}}
-  {{.Model.VarCaseSingular}} := &models.{{.Model.Model}}{}
+  // Allocate an empty {{.ModelName.Model}}
+  {{.ModelName.VarCaseSingular}} := &models.{{.ModelName.Model}}{}
 
-  // To find the {{.Model.Model}} the parameter {{.Name.ParamID}} is used.
-  if err := tx.Find({{.Model.VarCaseSingular}}, c.Param("{{.Name.ParamID}}")); err != nil {
+  // To find the {{.ModelName.Model}} the parameter {{.Name.ParamID}} is used.
+  if err := tx.Find({{.ModelName.VarCaseSingular}}, c.Param("{{.Name.ParamID}}")); err != nil {
     return c.Error(404, err)
   }
 
-  return c.Render(200, r.Auto(c, {{.Model.VarCaseSingular}}))
+  return c.Render(200, r.Auto(c, {{.ModelName.VarCaseSingular}}))
 }
 
-// New renders the form for creating a new {{.Model.Model}}.
+// New renders the form for creating a new {{.ModelName.Model}}.
 // This function is mapped to the path GET /{{.Name.URL}}/new
 func (v {{.Name.Resource}}Resource) New(c buffalo.Context) error {
-  return c.Render(200, r.Auto(c, &models.{{.Model.Model}}{}))
+  return c.Render(200, r.Auto(c, &models.{{.ModelName.Model}}{}))
 }
 
-// Create adds a {{.Model.Model}} to the DB. This function is mapped to the
+// Create adds a {{.ModelName.Model}} to the DB. This function is mapped to the
 // path POST /{{.Name.URL}}
 func (v {{.Name.Resource}}Resource) Create(c buffalo.Context) error {
-  // Allocate an empty {{.Model.Model}}
-  {{.Model.VarCaseSingular}} := &models.{{.Model.Model}}{}
+  // Allocate an empty {{.ModelName.Model}}
+  {{.ModelName.VarCaseSingular}} := &models.{{.ModelName.Model}}{}
 
-  // Bind {{.Model.VarCaseSingular}} to the html form elements
-  if err := c.Bind({{.Model.VarCaseSingular}}); err != nil {
+  // Bind {{.ModelName.VarCaseSingular}} to the html form elements
+  if err := c.Bind({{.ModelName.VarCaseSingular}}); err != nil {
     return errors.WithStack(err)
   }
 
@@ -95,7 +95,7 @@ func (v {{.Name.Resource}}Resource) Create(c buffalo.Context) error {
   }
 
   // Validate the data from the html form
-  verrs, err := tx.ValidateAndCreate({{.Model.VarCaseSingular}})
+  verrs, err := tx.ValidateAndCreate({{.ModelName.VarCaseSingular}})
   if err != nil {
     return errors.WithStack(err)
   }
@@ -106,17 +106,17 @@ func (v {{.Name.Resource}}Resource) Create(c buffalo.Context) error {
 
     // Render again the new.html template that the user can
     // correct the input.
-    return c.Render(422, r.Auto(c, {{.Model.VarCaseSingular}}))
+    return c.Render(422, r.Auto(c, {{.ModelName.VarCaseSingular}}))
   }
 
   // If there are no errors set a success message
-  c.Flash().Add("success", "{{.Model.Model}} was created successfully")
+  c.Flash().Add("success", "{{.ModelName.Model}} was created successfully")
 
   // and redirect to the {{.Name.URL}} index page
-  return c.Render(201, r.Auto(c, {{.Model.VarCaseSingular}}))
+  return c.Render(201, r.Auto(c, {{.ModelName.VarCaseSingular}}))
 }
 
-// Edit renders a edit form for a {{.Model.Model}}. This function is
+// Edit renders a edit form for a {{.ModelName.Model}}. This function is
 // mapped to the path GET /{{.Name.URL}}/{{"{"}}{{.Name.ParamID}}}/edit
 func (v {{.Name.Resource}}Resource) Edit(c buffalo.Context) error {
   // Get the DB connection from the context
@@ -125,17 +125,17 @@ func (v {{.Name.Resource}}Resource) Edit(c buffalo.Context) error {
     return errors.WithStack(errors.New("no transaction found"))
   }
 
-  // Allocate an empty {{.Model.Model}}
-  {{.Model.VarCaseSingular}} := &models.{{.Model.Model}}{}
+  // Allocate an empty {{.ModelName.Model}}
+  {{.ModelName.VarCaseSingular}} := &models.{{.ModelName.Model}}{}
 
-  if err := tx.Find({{.Model.VarCaseSingular}}, c.Param("{{.Name.ParamID}}")); err != nil {
+  if err := tx.Find({{.ModelName.VarCaseSingular}}, c.Param("{{.Name.ParamID}}")); err != nil {
     return c.Error(404, err)
   }
 
-  return c.Render(200, r.Auto(c, {{.Model.VarCaseSingular}}))
+  return c.Render(200, r.Auto(c, {{.ModelName.VarCaseSingular}}))
 }
 
-// Update changes a {{.Model.Model}} in the DB. This function is mapped to
+// Update changes a {{.ModelName.Model}} in the DB. This function is mapped to
 // the path PUT /{{.Name.URL}}/{{"{"}}{{.Name.ParamID}}}
 func (v {{.Name.Resource}}Resource) Update(c buffalo.Context) error {
   // Get the DB connection from the context
@@ -144,19 +144,19 @@ func (v {{.Name.Resource}}Resource) Update(c buffalo.Context) error {
     return errors.WithStack(errors.New("no transaction found"))
   }
 
-  // Allocate an empty {{.Model.Model}}
-  {{.Model.VarCaseSingular}} := &models.{{.Model.Model}}{}
+  // Allocate an empty {{.ModelName.Model}}
+  {{.ModelName.VarCaseSingular}} := &models.{{.ModelName.Model}}{}
 
-  if err := tx.Find({{.Model.VarCaseSingular}}, c.Param("{{.Name.ParamID}}")); err != nil {
+  if err := tx.Find({{.ModelName.VarCaseSingular}}, c.Param("{{.Name.ParamID}}")); err != nil {
     return c.Error(404, err)
   }
 
-  // Bind {{.Model.Model}} to the html form elements
-  if err := c.Bind({{.Model.VarCaseSingular}}); err != nil {
+  // Bind {{.ModelName.Model}} to the html form elements
+  if err := c.Bind({{.ModelName.VarCaseSingular}}); err != nil {
     return errors.WithStack(err)
   }
 
-  verrs, err := tx.ValidateAndUpdate({{.Model.VarCaseSingular}})
+  verrs, err := tx.ValidateAndUpdate({{.ModelName.VarCaseSingular}})
   if err != nil {
     return errors.WithStack(err)
   }
@@ -167,17 +167,17 @@ func (v {{.Name.Resource}}Resource) Update(c buffalo.Context) error {
 
     // Render again the edit.html template that the user can
     // correct the input.
-    return c.Render(422, r.Auto(c, {{.Model.VarCaseSingular}}))
+    return c.Render(422, r.Auto(c, {{.ModelName.VarCaseSingular}}))
   }
 
   // If there are no errors set a success message
-  c.Flash().Add("success", "{{.Model.Model}} was updated successfully")
+  c.Flash().Add("success", "{{.ModelName.Model}} was updated successfully")
 
   // and redirect to the {{.Name.URL}} index page
-  return c.Render(200, r.Auto(c, {{.Model.VarCaseSingular}}))
+  return c.Render(200, r.Auto(c, {{.ModelName.VarCaseSingular}}))
 }
 
-// Destroy deletes a {{.Model.Model}} from the DB. This function is mapped
+// Destroy deletes a {{.ModelName.Model}} from the DB. This function is mapped
 // to the path DELETE /{{.Name.URL}}/{{"{"}}{{.Name.ParamID}}}
 func (v {{.Name.Resource}}Resource) Destroy(c buffalo.Context) error {
   // Get the DB connection from the context
@@ -186,21 +186,21 @@ func (v {{.Name.Resource}}Resource) Destroy(c buffalo.Context) error {
     return errors.WithStack(errors.New("no transaction found"))
   }
 
-  // Allocate an empty {{.Model.Model}}
-  {{.Model.VarCaseSingular}} := &models.{{.Model.Model}}{}
+  // Allocate an empty {{.ModelName.Model}}
+  {{.ModelName.VarCaseSingular}} := &models.{{.ModelName.Model}}{}
 
-  // To find the {{.Model.Model}} the parameter {{.Name.ParamID}} is used.
-  if err := tx.Find({{.Model.VarCaseSingular}}, c.Param("{{.Name.ParamID}}")); err != nil {
+  // To find the {{.ModelName.Model}} the parameter {{.Name.ParamID}} is used.
+  if err := tx.Find({{.ModelName.VarCaseSingular}}, c.Param("{{.Name.ParamID}}")); err != nil {
     return c.Error(404, err)
   }
 
-  if err := tx.Destroy({{.Model.VarCaseSingular}}); err != nil {
+  if err := tx.Destroy({{.ModelName.VarCaseSingular}}); err != nil {
     return errors.WithStack(err)
   }
 
   // If there are no errors set a flash message
-  c.Flash().Add("success", "{{.Model.Model}} was destroyed successfully")
+  c.Flash().Add("success", "{{.ModelName.Model}} was destroyed successfully")
 
   // Redirect to the {{.Name.URL}} index page
-  return c.Render(200, r.Auto(c, {{.Model.VarCaseSingular}}))
+  return c.Render(200, r.Auto(c, {{.ModelName.VarCaseSingular}}))
 }

@@ -26,7 +26,7 @@ func New(opts *Options) (*genny.Generator, error) {
 
 	if len(opts.Args) > 0 {
 		opts.Name = inflect.Name(opts.Args[0])
-		opts.Model = inflect.Name(opts.Args[0])
+		opts.ModelName = inflect.Name(opts.Args[0])
 	}
 
 	var err error
@@ -41,9 +41,14 @@ func New(opts *Options) (*genny.Generator, error) {
 	opts.ActionsPath = opts.FilesPath
 	if strings.Contains(string(opts.Name), "/") {
 		parts := strings.Split(string(opts.Name), "/")
-		opts.Model = inflect.Name(parts[len(parts)-1])
+		opts.ModelName = inflect.Name(parts[len(parts)-1])
 		opts.ActionsPath = inflect.Underscore(opts.Name.Resource())
 	}
+
+	opts.Model = NewModel(opts.ModelName.Singular())
+	opts.Model.ParseAttributes(opts.Props...)
+
+	opts.Char = string([]byte(opts.ModelName.Lower())[0])
 
 	if err := opts.Validate(); err != nil {
 		return g, errors.WithStack(err)
@@ -57,7 +62,9 @@ func New(opts *Options) (*genny.Generator, error) {
 	opts.Actions = []string{"List", "Show", "New", "Create", "Edit", "Update", "Destroy"}
 
 	// transform templates
-	g.Transformer(gotools.TemplateTransformer(opts, template.FuncMap{}))
+	g.Transformer(gotools.TemplateTransformer(opts, template.FuncMap{
+		"capitalize": strings.ToUpper,
+	}))
 
 	// rename migrations
 	g.Transformer(genny.NewTransformer(".fizz", func(f genny.File) (genny.File, error) {
@@ -65,19 +72,25 @@ func New(opts *Options) (*genny.Generator, error) {
 			return f, nil
 		}
 		t := time.Now()
-		p := opts.Model.PluralUnder()
+		p := opts.ModelName.PluralUnder()
 		fN := strings.Replace(f.Name(), "migrations/migration", fmt.Sprintf("%s_create_%s", t.UTC().Format("20060102150405"), p), -1)
 		return genny.NewFile(filepath.Join("migrations", fN), f), nil
 	}))
 
-	// rename resource actions
 	g.Transformer(genny.NewTransformer(".go", func(f genny.File) (genny.File, error) {
-		if !strings.Contains(f.Name(), "resource") {
-			return f, nil
+		if strings.Contains(f.Name(), "resource") {
+			// rename resource actions
+			fN := strings.Replace(f.Name(), "resource", opts.FilesPath, -1)
+			return genny.NewFile(fN, f), nil
 		}
 
-		fN := strings.Replace(f.Name(), "resource", opts.FilesPath, -1)
-		return genny.NewFile(fN, f), nil
+		if strings.Contains(f.Name(), "model") {
+			// rename models
+			fN := strings.Replace(f.Name(), "models/model", fmt.Sprintf("%s/%s", opts.Model.Package, opts.ModelName.UnderSingular()), -1)
+			return genny.NewFile(fN, f), nil
+		}
+
+		return f, nil
 	}))
 
 	// rename view templates

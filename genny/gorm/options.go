@@ -9,9 +9,11 @@ import (
 )
 
 type Options struct {
-	App   meta.App     `json:"app"`
-	Name  inflect.Name `json:"name"`
-	Model inflect.Name `json:"model"`
+	App       meta.App     `json:"app"`
+	Name      inflect.Name `json:"name"`
+	ModelName inflect.Name `json:"model_name"`
+	Model     Model        `json:"model"`
+	Char      string       `json:"char"`
 	// SkipMigration bool         `json:"skip_migration"`
 	// SkipModel     bool         `json:"skip_model"`
 	// SkipTemplates bool         `json:"skip_templates"`
@@ -26,7 +28,7 @@ type Options struct {
 
 // Validate that options are usuable
 func (opts *Options) Validate() error {
-	if opts == nil || opts.Model == "" {
+	if opts == nil || opts.ModelName == "" {
 		return errors.New("you must specify a resource name")
 	}
 	return nil

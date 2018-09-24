@@ -1,8 +1,8 @@
 <div class="page-header">
-  <h1>{{.Model.ModelPlural}}</h1>
+  <h1>{{.ModelName.ModelPlural}}</h1>
 </div>
 <ul class="list-unstyled list-inline">
-  <li><a href="<%= new{{.Name.Resource}}Path() %>" class="btn btn-primary">Create New {{.Model.Model}}</a></li>
+  <li><a href="<%= new{{.Name.Resource}}Path() %>" class="btn btn-primary">Create New {{.ModelName.Model}}</a></li>
 </ul>
 
 <table class="table table-striped">
@@ -15,18 +15,18 @@
     <th>&nbsp;</th>
   </thead>
   <tbody>
-    <%= for ({{.Model.VarCaseSingular}}) in {{.Model.VarCasePlural}} { %>
+    <%= for ({{.ModelName.VarCaseSingular}}) in {{.ModelName.VarCasePlural}} { %>
       <tr>
       {{ range $mp := .Props -}}
         {{ if ne $mp.Type "text" -}}
-        <td><%= {{$.Model.VarCaseSingular}}.{{$mp.Name}} %></td>
+        <td><%= {{$.ModelName.VarCaseSingular}}.{{$mp.Name}} %></td>
         {{ end -}}
       {{ end -}}
         <td>
           <div class="pull-right">
-            <a href="<%= {{.Name.VarCaseSingular}}Path({ {{.Name.ParamID}}: {{.Model.VarCaseSingular}}.ID }) %>" class="btn btn-info">View</a>
-            <a href="<%= edit{{.Name.Model}}Path({ {{.Name.ParamID}}: {{.Model.VarCaseSingular}}.ID }) %>" class="btn btn-warning">Edit</a>
-            <a href="<%= {{.Name.VarCaseSingular}}Path({ {{.Name.ParamID}}: {{.Model.VarCaseSingular}}.ID }) %>" data-method="DELETE" data-confirm="Are you sure?" class="btn btn-danger">Destroy</a>
+            <a href="<%= {{.Name.VarCaseSingular}}Path({ {{.Name.ParamID}}: {{.ModelName.VarCaseSingular}}.ID }) %>" class="btn btn-info">View</a>
+            <a href="<%= edit{{.Name.Model}}Path({ {{.Name.ParamID}}: {{.ModelName.VarCaseSingular}}.ID }) %>" class="btn btn-warning">Edit</a>
+            <a href="<%= {{.Name.VarCaseSingular}}Path({ {{.Name.ParamID}}: {{.ModelName.VarCaseSingular}}.ID }) %>" data-method="DELETE" data-confirm="Are you sure?" class="btn btn-danger">Destroy</a>
           </div>
         </td>
       </tr>

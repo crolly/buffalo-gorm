@@ -19,7 +19,7 @@ var generateOptions = struct {
 
 // generateCmd represents the generate command
 var generateCmd = &cobra.Command{
-	Use:   "gorm name",
+	Use:   "gorm [name]",
 	Short: "A collection of gorm generators",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		opts := generateOptions
