@@ -1,11 +1,14 @@
 package actions
 
 import (
+	"strconv"
+
 	"github.com/crolly/gorm_test/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
 	forcessl "github.com/gobuffalo/mw-forcessl"
 	paramlogger "github.com/gobuffalo/mw-paramlogger"
+	"github.com/gobuffalo/pop"
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/unrolled/secure"
@@ -121,4 +124,32 @@ var GormTransaction = func(db *gorm.DB) buffalo.MiddlewareFunc {
 			return nil
 		}
 	}
+}
+
+func paginate(c buffalo.Context, count int) *pop.Paginator {
+
+	var (
+		page     int
+		per_page int
+	)
+
+	if p, err := strconv.Atoi(c.Param("page")); err == nil {
+		page = p
+	}
+
+	if p, err := strconv.Atoi(c.Param("per_page")); err == nil {
+		if p == 0 {
+			p = 20
+		}
+		per_page = p
+	}
+
+	paginator := pop.NewPaginator(page, per_page)
+	paginator.TotalEntriesSize = count
+	paginator.TotalPages = paginator.TotalEntriesSize / paginator.PerPage
+	if paginator.TotalEntriesSize%paginator.PerPage > 0 {
+		paginator.TotalPages++
+	}
+
+	return paginator
 }

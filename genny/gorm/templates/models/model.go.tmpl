@@ -30,8 +30,10 @@ func ({{.Char}} {{.ModelName.ModelPlural}}) String() string {
 	return string(j{{.Char}})
 }
 
-func ({{.Char}} *{{.ModelName.CamelSingular}}) BeforeCreate(tx *gorm.DB) error {
-	var err error
+func ({{.Char}} *{{.ModelName.CamelSingular}}) BeforeCreate(tx *gorm.DB) (err error) {
+	if {{.Char}}.ID != nil {
+		return nil
+	}
 	{{.Char}}.ID, err = uuid.NewV4()
 	return err
 }
