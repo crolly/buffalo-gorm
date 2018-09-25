@@ -20,7 +20,7 @@ type Model struct {
 func NewModel(name string) Model {
 	m := Model{
 		Package: "models",
-		Imports: []string{"time", "encoding/json", "github.com/jinzhu/gorm", "github.com/gobuffalo/validate", "github.com/pkg/errors"},
+		Imports: []string{"time", "encoding/json", "github.com/gobuffalo/uuid", "github.com/jinzhu/gorm", "github.com/gobuffalo/validate", "github.com/pkg/errors"},
 		Name:    inflect.Name(name),
 		Attributes: []Attribute{
 			{Name: inflect.Name("id"), OriginalType: "uuid", GoType: "uuid.UUID", FizzType: "uuid", Primary: true},

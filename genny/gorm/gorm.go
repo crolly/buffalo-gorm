@@ -127,9 +127,13 @@ func New(opts *Options) (*genny.Generator, error) {
 			return f, errors.WithStack(err)
 		}
 
-		// add GormTransaction
+		if opts.Init {
+			// add GormTransaction
+			f = genny.NewFile(f.Name(), strings.NewReader(f.String()+gormTX))
 
-		// replace app.Use(popmw.Transaction(models.DB)) with app.Use(GormTransaction(models.GormDB))
+			// replace app.Use(popmw.Transaction(models.DB)) with app.Use(GormTransaction(models.GormDB))
+			f = genny.NewFile(f.Name(), strings.NewReader(strings.Replace(f.String(), "app.Use(popmw.Transaction(models.DB))", "app.Use(GormTransaction(models.GormDB))", 1)))
+		}
 
 		return f, nil
 	})
@@ -140,10 +144,44 @@ func New(opts *Options) (*genny.Generator, error) {
 
 	g.File(f)
 
+	// p = "models/models.go"
+	// src, err = ioutil.ReadFile(p)
+	// if err != nil {
+	// 	return g, errors.WithStack(err)
+	// }
+	// f = genny.NewFile(p, strings.NewReader(string(src)))
+	// t = genny.NewTransformer(".go", func(f genny.File) (genny.File, error) {
+	// 	if opts.Init {
+	// 		// add Imports for gormDB to model.go
+	// 		f, err = gotools.AddImport(f, gormImports)
+	// 		if err != nil {
+	// 			return f, errors.WithStack(err)
+	// 		}
+
+	// 		// add gormDB to model.go
+	// 		// f = genny.NewFile(f.Name(), strings.NewReader(strings.Replace(f.String(), "var DB *pop.Connection", gormVar, 1)))
+
+	// 		// f, err = gotools.AddInsideBlock(f, "func init() {", gormDB)
+	// 		// if err != nil {
+	// 		// 	return f, errors.WithStack(err)
+	// 		// }
+	// 	}
+
+	// 	return f, nil
+	// })
+	// f, err = t.Transform(f)
+	// if err != nil {
+	// 	return g, errors.WithStack(err)
+	// }
+
+	// g.File(f)
+
 	return g, nil
 }
 
-const gormTX = `var GormTransaction = func(db *gorm.DB) buffalo.MiddlewareFunc {
+const gormTX = `
+
+var GormTransaction = func(db *gorm.DB) buffalo.MiddlewareFunc {
 	return func(h buffalo.Handler) buffalo.Handler {
 		return func(c buffalo.Context) error {
 
@@ -177,3 +215,19 @@ const gormTX = `var GormTransaction = func(db *gorm.DB) buffalo.MiddlewareFunc {
 		}
 	}
 }`
+
+const gormVar = `var DB *pop.Connection
+var GormDB *gorm.DB
+`
+
+const gormDB = `
+deets := DB.Dialect.Details()
+GormDB, err = gorm.Open(deets.Dialect, DB.URL())
+if err != nil {
+	log.Fatal(err)
+}
+GormDB = GormDB.LogMode(true)`
+
+const gormImports = `
+_ "github.com/jinzhu/gorm/dialects/mysql"
+"github.com/jinzhu/gorm"`

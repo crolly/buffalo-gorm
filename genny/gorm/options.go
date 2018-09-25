@@ -24,6 +24,8 @@ type Options struct {
 	NamedAttrs  attrs.NamedAttrs `json:"named_attrs"`
 	Actions     []string         `json:"actions"`
 	Args        []string         `json:"args"`
+
+	Init bool `json:"init"`
 }
 
 // Validate that options are usuable

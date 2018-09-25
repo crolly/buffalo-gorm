@@ -48,7 +48,7 @@ var generateCmd = &cobra.Command{
 }
 
 func init() {
-	// generateCmd.Flags().StringVarP(&generateOptions.TestName, "name", "n", "", "specify the name of the gorm model/resource")
+	generateCmd.Flags().BoolVarP(&generateOptions.Init, "init", "i", false, "initialize gorm for the project")
 	generateCmd.Flags().BoolVarP(&generateOptions.dryRun, "dry-run", "d", false, "run the generator without creating files or running commands")
 	rootCmd.AddCommand(generateCmd)
 }

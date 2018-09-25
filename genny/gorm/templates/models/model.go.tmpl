@@ -9,20 +9,20 @@ import (
 	{{ end -}}
 )
 
-type {{.ModelName}} struct {
+type {{.ModelName.CamelSingular}} struct {
 	{{range $a := .Model.Attributes -}}
 	{{$a}}
 	{{end -}}
 }
 
 // String is not required by pop and may be deleted
-func ({{.Char}} {{.ModelName}}) String() string {
+func ({{.Char}} {{.ModelName.CamelSingular}}) String() string {
 	j{{.Char}}, _ := json.Marshal({{.Char}})
 	return string(j{{.Char}})
 }
 
 // {{.ModelName.ModelPlural}} is not required by pop and may be deleted
-type {{.ModelName.ModelPlural}} []{{.ModelName}}
+type {{.ModelName.ModelPlural}} []{{.ModelName.CamelSingular}}
 
 // String is not required by pop and may be deleted
 func ({{.Char}} {{.ModelName.ModelPlural}}) String() string {
@@ -30,9 +30,15 @@ func ({{.Char}} {{.ModelName.ModelPlural}}) String() string {
 	return string(j{{.Char}})
 }
 
+func ({{.Char}} *{{.ModelName.CamelSingular}}) BeforeCreate(tx *gorm.DB) error {
+	var err error
+	{{.Char}}.ID, err = uuid.NewV4()
+	return err
+}
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
-func ({{.Char}} *{{.ModelName}}) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func ({{.Char}} *{{.ModelName.CamelSingular}}) Validate(tx *gorm.DB) (*validate.Errors, error) {
 	{{ if .Model.ValidatableAttributes -}}
 	return validate.Validate(
 		{{ range $a := .Model.ValidatableAttributes -}}
@@ -46,12 +52,22 @@ func ({{.Char}} *{{.ModelName}}) Validate(tx *pop.Connection) (*validate.Errors,
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
-func ({{.Char}} *{{.ModelName}}) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+func ({{.Char}} *{{.ModelName.CamelSingular}}) ValidateCreate(tx *gorm.DB) (*validate.Errors, error) {
+	verrs, err := {{.Char}}.Validate(tx)
+	if err != nil {
+		return verrs, errors.WithStack(err)
+	}
+	e := tx.Create({{.Char}})
+	return verrs, e.Error
 }
 
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
 // This method is not required and may be deleted.
-func ({{.Char}} *{{.ModelName}}) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+func ({{.Char}} *{{.ModelName.CamelSingular}}) ValidateUpdate(tx *gorm.DB) (*validate.Errors, error) {
+	verrs, err := {{.Char}}.Validate(tx)
+	if err != nil {
+		return verrs, errors.WithStack(err)
+	}
+	e := tx.Model({{.Char}}).Updates({{.Char}})
+	return verrs, e.Error
 }
