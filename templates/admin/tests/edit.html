@@ -1,0 +1,8 @@
+<div class="page-header">
+  <h1>Edit Test</h1>
+</div>
+
+<%= form_for(test, {action: adminTestPath({ admin_test_id: test.ID }), method: "PUT"}) { %>
+  <%= partial("admin/tests/form.html") %>
+  <a href="<%= adminTestPath({ admin_test_id: test.ID }) %>" class="btn btn-warning" data-confirm="Are you sure?">Cancel</a>
+<% } %>

@@ -1,5 +1,5 @@
-create_table("{{.NamedAttrs.Name.Tableize}}") {
-  t.Column("id", "uuid", {"primary": true})
-  {{ range $a := .NamedAttrs.Attrs }}t.Column("{{$a.Name.Underscore}}", "{{$a.CommonType}}")
-  {{ end }}t.Column("deleted_at", "timestamp", {"null": true})
+create_table("{{.Model.Name.Table}}") {
+  {{ range $a := .Model.Attributes -}}
+  t.Column("{{$a.Name.Underscore}}", "{{$a.FizzType}}"{{if $a.Primary}}, {"primary": true}{{else if $a.Nullable}},{"null": true}{{end}})
+  {{ end -}}
 }

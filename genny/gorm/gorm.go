@@ -3,6 +3,7 @@ package gorm
 import (
 	"fmt"
 	"html/template"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,7 +64,7 @@ func New(opts *Options) (*genny.Generator, error) {
 
 	// transform templates
 	g.Transformer(gotools.TemplateTransformer(opts, template.FuncMap{
-		"capitalize": strings.ToUpper,
+		"capitalize": inflect.Capitalize,
 	}))
 
 	// rename migrations
@@ -80,7 +81,7 @@ func New(opts *Options) (*genny.Generator, error) {
 	g.Transformer(genny.NewTransformer(".go", func(f genny.File) (genny.File, error) {
 		if strings.Contains(f.Name(), "resource") {
 			// rename resource actions
-			fN := strings.Replace(f.Name(), "resource", opts.FilesPath, -1)
+			fN := strings.Replace(f.Name(), "resource", opts.ModelName.PluralUnder(), -1)
 			return genny.NewFile(fN, f), nil
 		}
 
@@ -113,5 +114,66 @@ func New(opts *Options) (*genny.Generator, error) {
 		return genny.NewFile(fN, f), nil
 	}))
 
+	p := "actions/app.go"
+	src, err := ioutil.ReadFile(p)
+	if err != nil {
+		return g, errors.WithStack(err)
+	}
+	f := genny.NewFile(p, strings.NewReader(string(src)))
+	t := genny.NewTransformer(".go", func(f genny.File) (genny.File, error) {
+		// add resource route
+		f, err := gotools.AddInsideBlock(f, "if app == nil {", fmt.Sprintf("app.Resource(\"/%s\", %sResource{})", opts.Name.URL(), opts.Name.Resource()))
+		if err != nil {
+			return f, errors.WithStack(err)
+		}
+
+		// add GormTransaction
+
+		// replace app.Use(popmw.Transaction(models.DB)) with app.Use(GormTransaction(models.GormDB))
+
+		return f, nil
+	})
+	f, err = t.Transform(f)
+	if err != nil {
+		return g, errors.WithStack(err)
+	}
+
+	g.File(f)
+
 	return g, nil
 }
+
+const gormTX = `var GormTransaction = func(db *gorm.DB) buffalo.MiddlewareFunc {
+	return func(h buffalo.Handler) buffalo.Handler {
+		return func(c buffalo.Context) error {
+
+			ef := func() error {
+				if err := h(c); err != nil {
+					return err
+				}
+				if res, ok := c.Response().(*buffalo.Response); ok {
+					if res.Status < 200 || res.Status >= 400 {
+						return errors.New("no connection to db")
+					}
+				}
+				return nil
+			}
+
+			// wrap all requests in a transaction and set the length
+			// of time doing things in the db to the log.
+			tx := db.Begin()
+			if tx.Error != nil {
+				return errors.WithStack(tx.Error)
+			}
+			defer tx.Commit()
+
+			c.Set("tx", tx)
+			err := ef()
+			if err != nil && errors.Cause(err) != errors.New("no connection to db") {
+				tx.Rollback()
+				return err
+			}
+			return nil
+		}
+	}
+}`

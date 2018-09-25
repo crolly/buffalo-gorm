@@ -14,7 +14,7 @@
             "host": "127.0.0.1",
             "program": "${workspaceRoot}/main.go",
             "env": {},
-            "args": ["gorm", "admin/test", "name", "birthday:date"],
+            "args": ["gorm", "admin/test", "name", "birthday:datetime", "address_id:nulls.UUID"],
             "showLog": false
         }
     ]

@@ -8,8 +8,9 @@ import (
 
 // Prop of a model. Starts as name:type on the command line.
 type Prop struct {
-	Name inflect.Name
-	Type string
+	Name     inflect.Name
+	Type     string
+	Nullable bool
 }
 
 // String representation of Prop
@@ -29,6 +30,7 @@ func modelPropertiesFromArgs(args []string) []Prop {
 			Type: "string",
 		}
 		if len(ax) > 1 {
+			p.Nullable = strings.Contains(ax[1], "nulls.")
 			p.Type = strings.ToLower(strings.TrimPrefix(ax[1], "nulls."))
 		}
 		props = append(props, p)

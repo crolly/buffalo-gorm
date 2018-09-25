@@ -1,0 +1,9 @@
+create_table("tests") {
+  t.Column("id", "uuid", {"primary": true})
+  t.Column("created_at", "timestamp")
+  t.Column("updated_at", "timestamp")
+  t.Column("deleted_at", "timestamp",{"null": true})
+  t.Column("name", "string")
+  t.Column("birthday", "timestamp")
+  t.Column("address_id", "uuid",{"null": true})
+  }
