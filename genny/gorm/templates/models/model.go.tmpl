@@ -31,7 +31,7 @@ func ({{.Char}} {{.ModelName.ModelPlural}}) String() string {
 }
 
 func ({{.Char}} *{{.ModelName.CamelSingular}}) BeforeCreate(tx *gorm.DB) (err error) {
-	if {{.Char}}.ID != nil {
+	if {{.Char}}.ID != uuid.Nil {
 		return nil
 	}
 	{{.Char}}.ID, err = uuid.NewV4()
