@@ -24,8 +24,6 @@ func NewModel(name string) Model {
 		Name:    inflect.Name(name),
 		Attributes: []Attribute{
 			{Name: inflect.Name("id"), OriginalType: "uuid", GoType: "uuid.UUID", FizzType: "uuid", Primary: true},
-			{Name: inflect.Name("created_at"), OriginalType: "time.Time", GoType: "time.Time", FizzType: "timestamp"},
-			{Name: inflect.Name("updated_at"), OriginalType: "time.Time", GoType: "time.Time", FizzType: "timestamp"},
 			{Name: inflect.Name("deleted_at"), OriginalType: "*time.Time", GoType: "*time.Time", FizzType: "timestamp", Nullable: true},
 		},
 		ValidatableAttributes: []Attribute{},
