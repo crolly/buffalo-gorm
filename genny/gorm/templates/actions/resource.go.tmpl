@@ -200,7 +200,7 @@ func (v {{.Name.Resource}}Resource) Destroy(c buffalo.Context) error {
     return c.Error(404, err)
   }
 
-  if err := tx.Delete(&{{.ModelName.VarCaseSingular}}); err != nil {
+  if err := tx.Delete(&{{.ModelName.VarCaseSingular}}).Error; err != nil {
     return errors.WithStack(err)
   }
 
