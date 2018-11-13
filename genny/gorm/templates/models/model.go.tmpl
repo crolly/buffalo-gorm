@@ -56,7 +56,7 @@ func ({{.Char}} *{{.ModelName.CamelSingular}}) Validate(tx *gorm.DB) (*validate.
 // This method is not required and may be deleted.
 func ({{.Char}} *{{.ModelName.CamelSingular}}) ValidateCreate(tx *gorm.DB) (*validate.Errors, error) {
 	verrs, err := {{.Char}}.Validate(tx)
-	if verrs.hasAny() {
+	if verrs.HasAny() {
 		return verrs, errors.WithStack(err)
 	}
 	e := tx.Create({{.Char}})
@@ -67,7 +67,7 @@ func ({{.Char}} *{{.ModelName.CamelSingular}}) ValidateCreate(tx *gorm.DB) (*val
 // This method is not required and may be deleted.
 func ({{.Char}} *{{.ModelName.CamelSingular}}) ValidateUpdate(tx *gorm.DB) (*validate.Errors, error) {
 	verrs, err := {{.Char}}.Validate(tx)
-	if verrs.hasAny() {
+	if verrs.HasAny() {
 		return verrs, errors.WithStack(err)
 	}
 	e := tx.Model({{.Char}}).Updates({{.Char}})
