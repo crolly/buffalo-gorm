@@ -3,7 +3,7 @@ package actions
 import (
 	"strconv"
 
-	"github.com/crolly/gorm_test/models"
+	"github.com/crolly/buffalo-gorm/models"
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
 	forcessl "github.com/gobuffalo/mw-forcessl"
