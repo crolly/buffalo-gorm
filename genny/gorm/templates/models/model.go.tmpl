@@ -30,11 +30,15 @@ func ({{.Char}} {{.ModelName.ModelPlural}}) String() string {
 	return string(j{{.Char}})
 }
 
-func ({{.Char}} *{{.ModelName.CamelSingular}}) BeforeCreate(tx *gorm.DB) (err error) {
+func ({{.Char}} *{{.ModelName.CamelSingular}}) BeforeCreate(scope *gorm.Scope) (err error) {
 	if {{.Char}}.ID != uuid.Nil {
 		return nil
 	}
-	{{.Char}}.ID, err = uuid.NewV4()
+	id, err := uuid.NewV4()
+	if err != nil {
+		return err
+	}
+	scope.SetColumn("ID", id)
 	return err
 }
 
